@@ -2,7 +2,8 @@ import json
 import threading
 import unittest
 from http.server import ThreadingHTTPServer
-from urllib.request import urlopen
+from urllib.error import HTTPError
+from urllib.request import Request, urlopen
 
 from characterlab.model import ALLOWLISTED_COPING_SUGGESTIONS, build_comparison, is_allowlisted_read_only_comparison
 from characterlab.webapp import DemoHandler, page
@@ -34,3 +35,27 @@ class PortfolioDemoTests(unittest.TestCase):
 
     def test_model_remains_read_only(self):
         self.assertTrue(is_allowlisted_read_only_comparison(build_comparison()))
+
+    def test_mutating_methods_are_explicitly_rejected_without_changing_api_bytes(self):
+        server = ThreadingHTTPServer(("127.0.0.1", 0), DemoHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        url = f"http://127.0.0.1:{server.server_port}/api/comparison?scenario=planned_retry"
+        try:
+            with urlopen(url, timeout=3) as response:
+                before = response.read()
+            for path in ("/", "/api/comparison?scenario=planned_retry"):
+                for method in ("POST", "PUT", "PATCH", "DELETE"):
+                    with self.assertRaises(HTTPError) as raised:
+                        urlopen(Request(f"http://127.0.0.1:{server.server_port}{path}", method=method), timeout=3)
+                    self.assertEqual(raised.exception.code, 405)
+            with urlopen(url, timeout=3) as response:
+                after = response.read()
+            with urlopen(url, timeout=3) as response:
+                repeated = response.read()
+            self.assertEqual(before, after)
+            self.assertEqual(after, repeated)
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=3)

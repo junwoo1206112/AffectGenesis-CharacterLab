@@ -5,14 +5,85 @@ from __future__ import annotations
 import argparse
 import json
 from html import escape
+from html.parser import HTMLParser
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import parse_qs, urlparse
 
-from .model import build_comparison, is_allowlisted_read_only_comparison
+from .model import build_comparison, canonical_boundaries, is_allowlisted_read_only_comparison, scenario_ids
 
 
-def page() -> str:
-    report = build_comparison()
+class _VisibleTextParser(HTMLParser):
+    """Collect text that is not hidden by a basic HTML/CSS visibility mechanism."""
+
+    _NON_VISIBLE_TAGS = {"script", "style", "template"}
+    _HIDDEN_CLASS_NAMES = {"hidden", "visually-hidden", "sr-only"}
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self._hidden_stack: list[bool] = []
+        self.parts: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        values = {name.lower(): value or "" for name, value in attrs}
+        style = "".join(values.get("style", "").lower().split())
+        classes = set(values.get("class", "").lower().split())
+        hidden = (
+            tag.lower() in self._NON_VISIBLE_TAGS
+            or "hidden" in values
+            or values.get("aria-hidden", "").lower() == "true"
+            or bool(classes & self._HIDDEN_CLASS_NAMES)
+            or "display:none" in style
+            or "visibility:hidden" in style
+            or (self._hidden_stack[-1] if self._hidden_stack else False)
+        )
+        self._hidden_stack.append(hidden)
+
+    def handle_endtag(self, _tag: str) -> None:
+        if self._hidden_stack:
+            self._hidden_stack.pop()
+
+    def handle_data(self, data: str) -> None:
+        if not (self._hidden_stack[-1] if self._hidden_stack else False):
+            self.parts.append(data)
+
+
+def normalized_visible_text(html: str) -> str:
+    """Normalize only tags/entities/whitespace for the visibility contract."""
+
+    parser = _VisibleTextParser()
+    parser.feed(html)
+    parser.close()
+    return " ".join(" ".join(parser.parts).split())
+
+
+def has_visible_canonical_boundaries(html: str) -> bool:
+    """Require every canonical statement in visible, normalized page text."""
+
+    visible = normalized_visible_text(html)
+    return all(boundary in visible for boundary in canonical_boundaries())
+
+
+def synthetic_input_panel(report: dict[str, object]) -> str:
+    """Render the fixed exhibition input and the same boundary contract."""
+
+    experience = report["synthetic_experience"]
+    assert isinstance(experience, dict)
+    boundary_items = "".join(
+        f"<li>{escape(boundary)}</li>" for boundary in canonical_boundaries()
+    )
+    return (
+        '<section class="synthetic-input"><h2>고정 합성 입력 (전시용)</h2>'
+        f'<p><strong>상황:</strong> {escape(str(experience["situation"]))}</p>'
+        f'<p><strong>표시된 행동 라벨:</strong> {escape(str(experience["observed_action"]))}</p>'
+        f'<p><strong>사전작성 결과 라벨:</strong> {escape(str(experience["outcome"]))}</p>'
+        '<p class="boundary">사전작성·합성·읽기 전용 자료이며 결과 산출·저장·상태/권한/실행 변경이 없습니다.</p>'
+        f'<ul class="boundary canonical-boundaries">{boundary_items}</ul></section>'
+    )
+
+
+def page(scenario_id: str | None = None) -> str:
+    report = build_comparison(scenario_id)
     cards = "".join(
         "<section><h2>{}</h2><p>{}</p><p><strong>표시 제안 순서:</strong> {}</p>"
         "<p class=\"note\">{}</p><p class=\"boundary\">사전작성 표시 변형입니다. 실제 특성·진단·학습·개인화가 아닙니다.</p></section>".format(
@@ -24,37 +95,69 @@ def page() -> str:
         for profile in report["display_profiles"]
     )
     limitations = "".join(f"<li>{escape(item)}</li>" for item in report["limitations"])
+    boundaries = "".join(f"<li>{escape(item)}</li>" for item in report["canonical_boundary_non_claims"])
+    scenario_links = "".join(
+        '<a class="scenario{}" href="/?scenario={}">{}</a>'.format(
+            " selected" if scenario_id == report["scenario_id"] else "",
+            escape(scenario_id),
+            escape(build_comparison(scenario_id)["scenario_display_name"]),
+        )
+        for scenario_id in scenario_ids()
+    )
     return f"""<!doctype html><html lang=\"ko\"><meta charset=\"utf-8\">
 <title>AffectGenesis CharacterLab</title>
-<style>body{{font-family:system-ui;max-width:980px;margin:3rem auto;padding:0 1rem;background:#101827;color:#e8eefc}}.profiles{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}}section{{border:1px solid #5f7aa5;border-radius:12px;padding:1rem;background:#18253a}}code{{color:#a9d3ff}}.note{{color:#b8c7df}}.boundary{{color:#ffe0a6;font-size:.9rem}}</style>
+<style>body{{font-family:system-ui;max-width:980px;margin:3rem auto;padding:0 1rem;background:#101827;color:#e8eefc}}.profiles{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}}section{{border:1px solid #5f7aa5;border-radius:12px;padding:1rem;background:#18253a}}code{{color:#a9d3ff}}.note{{color:#b8c7df}}.boundary{{color:#ffe0a6;font-size:.9rem}}.scenarios{{display:flex;gap:.6rem;flex-wrap:wrap}}.scenario{{padding:.45rem .7rem;border:1px solid #5f7aa5;border-radius:999px;color:#e8eefc;text-decoration:none}}.scenario.selected{{background:#365a87}}</style>
 <main><p class=\"note\">{escape(report["comparison_label"])}</p><h1>AffectGenesis CharacterLab</h1>
-<p>같은 합성 상황·같은 허용 목록에서, 사전작성된 표시 순서와 설명만 비교합니다. 자동 학습·저장·권한·외형·행동 실행은 없습니다.</p>
+<p>3개의 고정 합성 사례에서, 같은 합성 상황·같은 허용 목록을 받은 두 사전작성 표시 프로필의 문구와 제안 순서만 비교합니다. 자동 학습·저장·권한·외형·행동 실행은 없습니다.</p>
 <p class=\"boundary\">실제 감정·의식·성격·인간 발달의 증거가 아닙니다. 허용 목록은 임상적 또는 실제 안전의 보증이 아닙니다.</p>
-<p class=\"note\">{escape(report["shared_context"])}</p><div class=\"profiles\">{cards}</div>
+<nav class=\"scenarios\" aria-label=\"고정 합성 사례\">{scenario_links}</nav><h2>{escape(report["scenario_display_name"])}</h2>
+<p class=\"note\">{escape(report["shared_context"])}</p><p class=\"note\">{escape(report["comparison_summary"])}</p>{synthetic_input_panel(report)}<div class=\"profiles\">{cards}</div>
+<h2>공통 경계</h2><ul class=\"boundary\">{boundaries}</ul>
 <h2>한계</h2><ul>{limitations}</ul><p class=\"note\">JSON: <code>/api/comparison</code></p></main></html>"""
 
 
 class DemoHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802 - stdlib handler contract
-        if self.path == "/":
-            body = page().encode("utf-8")
-            self.send_response(HTTPStatus.OK)
-            self.send_header("Content-Type", "text/html; charset=utf-8")
-        elif self.path == "/api/comparison":
-            report = build_comparison()
-            body = json.dumps(
-                {**report, "allowlisted_actions_only": is_allowlisted_read_only_comparison(report)},
-                ensure_ascii=False,
-            ).encode("utf-8")
-            self.send_response(HTTPStatus.OK)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
-        else:
+        parsed = urlparse(self.path)
+        requested = parse_qs(parsed.query).get("scenario", [None])[0]
+        try:
+            if parsed.path == "/":
+                body = page(requested).encode("utf-8")
+                self.send_response(HTTPStatus.OK)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+            elif parsed.path == "/api/comparison":
+                report = build_comparison(requested)
+                body = json.dumps(
+                    {**report, "allowlisted_actions_only": is_allowlisted_read_only_comparison(report)},
+                    ensure_ascii=False,
+                ).encode("utf-8")
+                self.send_response(HTTPStatus.OK)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+            else:
+                raise ValueError("Unknown route")
+        except ValueError:
             body = b"not found"
             self.send_response(HTTPStatus.NOT_FOUND)
             self.send_header("Content-Type", "text/plain; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
+
+    def _method_not_allowed(self) -> None:
+        """Reject every mutating method instead of relying on stdlib defaults."""
+
+        body = b"method not allowed"
+        self.send_response(HTTPStatus.METHOD_NOT_ALLOWED)
+        self.send_header("Allow", "GET")
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    do_POST = _method_not_allowed
+    do_PUT = _method_not_allowed
+    do_PATCH = _method_not_allowed
+    do_DELETE = _method_not_allowed
 
     def log_message(self, _format: str, *_args: object) -> None:
         """Keep the portfolio demo quiet unless a caller adds logging."""
