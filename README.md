@@ -1,11 +1,11 @@
 # AffectGenesis CharacterLab
 
-작은 로컬 포트폴리오 데모입니다. 동일한 합성 캐릭터와 동일한 합성 실패·회복 경험을 두 조건으로 비교합니다.
+작은 로컬 포트폴리오 데모입니다. **동일한 합성 상황**과 동일한 사전정의 허용 목록에서, 두 표시 프로필의 문구와 제안 순서만 나란히 비교합니다.
 
-- `unapproved_learning`: 기록된 경험을 인용하지 않는 고정 안전 대처
-- `approved_learning`: 같은 기록을 읽기 전용으로 인용해 계획적 재시도를 추가한 대처
+- `확인 우선 표시`: 확인·지원 요청이 먼저 보이는 사전작성 순서
+- `계획 다음 표시`: 확인 뒤 계획적 재시도가 먼저 보이는 사전작성 순서
 
-모든 제안은 미리 정의된 안전 대처(`pause_and_check`, `ask_for_support`, `retry_with_plan`)만 사용합니다. 이 앱은 외부 서비스·API 키·실제 사용자 데이터를 쓰지 않습니다.
+두 프로필은 실제 캐릭터 성격·감정·학습 결과가 아니라 화면용 정적 표시 변형입니다. 모든 제안은 사전정의 허용 목록(`pause_and_check`, `ask_for_support`, `retry_with_plan`) 안에 있으며, 외부 서비스·API 키·실제 사용자 데이터를 쓰지 않습니다.
 
 ## Run
 
@@ -26,4 +26,4 @@ git diff --check
 
 ## Scope
 
-이것은 합성 경험에 따른 **기능적 대처 제안**을 보여 주는 결정론적 데모입니다. 실제 감정, 의식, 인간 발달, 임상적 안전성의 증거가 아닙니다. This is not evidence of actual emotion, consciousness, or human development. `approved_learning`도 읽기 전용 비교 표식일 뿐 실제 캐릭터 상태, 권한, 외형을 자동으로 바꾸지 않습니다.
+이것은 합성 경험에 따른 **기능적 대처 제안의 표시 순서**를 보여 주는 결정론적 데모입니다. 실제 감정, 성격, 의식, 인간 발달, 학습, 임상적 안전성의 증거가 아닙니다. This is not evidence of actual emotion, personality, consciousness, learning, or human development. 모든 비교는 읽기 전용이며 캐릭터 상태·기억·권한·외형을 바꾸지 않고, 행동을 실행하지 않습니다. 허용 목록도 임상적 또는 실제 안전을 보증하지 않습니다.

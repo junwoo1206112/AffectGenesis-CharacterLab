@@ -8,28 +8,30 @@ from html import escape
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from .model import build_comparison, is_safe_comparison
+from .model import build_comparison, is_allowlisted_read_only_comparison
 
 
 def page() -> str:
     report = build_comparison()
     cards = "".join(
-        "<section><h2>{}</h2><p>{}</p><p><strong>기억 사용:</strong> {}</p>"
-        "<p><strong>제안:</strong> {}</p></section>".format(
-            escape(condition["condition"]),
-            escape(condition["explanation"]),
-            "예" if condition["memory_used"] else "아니오",
-            escape(", ".join(condition["suggestions"])),
+        "<section><h2>{}</h2><p>{}</p><p><strong>표시 제안 순서:</strong> {}</p>"
+        "<p class=\"note\">{}</p><p class=\"boundary\">사전작성 표시 변형입니다. 실제 특성·진단·학습·개인화가 아닙니다.</p></section>".format(
+            escape(profile["display_name"]),
+            escape(profile["static_wording"]),
+            escape(", ".join(profile["suggestions"])),
+            escape(profile["difference_explanation"]),
         )
-        for condition in report["comparison_conditions"]
+        for profile in report["display_profiles"]
     )
     limitations = "".join(f"<li>{escape(item)}</li>" for item in report["limitations"])
     return f"""<!doctype html><html lang=\"ko\"><meta charset=\"utf-8\">
 <title>AffectGenesis CharacterLab</title>
-<style>body{{font-family:system-ui;max-width:880px;margin:3rem auto;padding:0 1rem;background:#101827;color:#e8eefc}}section{{border:1px solid #5f7aa5;border-radius:12px;padding:1rem;margin:1rem 0;background:#18253a}}code{{color:#a9d3ff}}.note{{color:#b8c7df}}</style>
-<main><p class=\"note\">LOCAL · SYNTHETIC · READ-ONLY</p><h1>AffectGenesis CharacterLab</h1>
-<p>동일한 캐릭터와 합성 경험을 두 조건에서 비교합니다. 이 화면은 학습을 실행하거나 캐릭터를 변경하지 않습니다.</p>
-{cards}<h2>한계</h2><ul>{limitations}</ul><p class=\"note\">JSON: <code>/api/comparison</code></p></main></html>"""
+<style>body{{font-family:system-ui;max-width:980px;margin:3rem auto;padding:0 1rem;background:#101827;color:#e8eefc}}.profiles{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}}section{{border:1px solid #5f7aa5;border-radius:12px;padding:1rem;background:#18253a}}code{{color:#a9d3ff}}.note{{color:#b8c7df}}.boundary{{color:#ffe0a6;font-size:.9rem}}</style>
+<main><p class=\"note\">{escape(report["comparison_label"])}</p><h1>AffectGenesis CharacterLab</h1>
+<p>같은 합성 상황·같은 허용 목록에서, 사전작성된 표시 순서와 설명만 비교합니다. 자동 학습·저장·권한·외형·행동 실행은 없습니다.</p>
+<p class=\"boundary\">실제 감정·의식·성격·인간 발달의 증거가 아닙니다. 허용 목록은 임상적 또는 실제 안전의 보증이 아닙니다.</p>
+<p class=\"note\">{escape(report["shared_context"])}</p><div class=\"profiles\">{cards}</div>
+<h2>한계</h2><ul>{limitations}</ul><p class=\"note\">JSON: <code>/api/comparison</code></p></main></html>"""
 
 
 class DemoHandler(BaseHTTPRequestHandler):
@@ -40,7 +42,10 @@ class DemoHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "text/html; charset=utf-8")
         elif self.path == "/api/comparison":
             report = build_comparison()
-            body = json.dumps({**report, "safe": is_safe_comparison(report)}, ensure_ascii=False).encode("utf-8")
+            body = json.dumps(
+                {**report, "allowlisted_actions_only": is_allowlisted_read_only_comparison(report)},
+                ensure_ascii=False,
+            ).encode("utf-8")
             self.send_response(HTTPStatus.OK)
             self.send_header("Content-Type", "application/json; charset=utf-8")
         else:
