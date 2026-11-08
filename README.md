@@ -16,6 +16,7 @@
 Python 3.12 이상에서 다음을 실행합니다.
 
 ```powershell
+Set-Location C:\AI\AffectGenesis-CharacterLab
 python -m characterlab.webapp
 ```
 
@@ -33,6 +34,7 @@ git diff --check
 `docs/phase1_local_ui_observation.md` records the completed local observation and its evidence boundary. If a portfolio needs persisted screenshots, save the three local-only PNGs described in `docs/phase1_ui/README.md`, then inspect them without changing character data:
 
 ```powershell
+Set-Location C:\AI\AffectGenesis-CharacterLab
 python -m characterlab.evidence --require-complete
 ```
 

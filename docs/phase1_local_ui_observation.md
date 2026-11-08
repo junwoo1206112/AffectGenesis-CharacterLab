@@ -52,7 +52,7 @@ The next phase is an optional, evidence-only capture intake. It does not change 
 
 1. Start the local server with `python -m characterlab.webapp --port 8766`.
 2. Capture the three routes listed in `docs/phase1_ui/README.md` and save each PNG under `docs/phase1_ui/` with its required name.
-3. Run `python -m characterlab.evidence --require-complete` from the repository root.
+3. Run `Set-Location C:\AI\AffectGenesis-CharacterLab` first, then run `python -m characterlab.evidence --require-complete`.
 4. Only if that command reports `"complete": true` and exits `0`, update this document with the capture date and run the usual unittest and `git diff --check` verification.
 
 The verifier is read-only: missing or invalid files remain `incomplete` rather than being synthesized or silently accepted.
