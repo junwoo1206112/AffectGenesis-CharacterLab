@@ -31,14 +31,16 @@ git diff --check
 
 ## Optional local UI evidence
 
-`docs/phase1_local_ui_observation.md` records the completed local observation and its evidence boundary. If a portfolio needs persisted screenshots, save the three local-only PNGs described in `docs/phase1_ui/README.md`, then inspect them without changing character data:
+`docs/phase1_local_ui_observation.md` records the completed local observation and its evidence boundary. The repository now includes a verified three-file local archive. It documents only fixed UI rendering, not actual emotion, learning, personality, consciousness, human development, or safety.
 
 ```powershell
 Set-Location C:\AI\AffectGenesis-CharacterLab
 python -m characterlab.evidence --require-complete
 ```
 
-The local homepage and `http://127.0.0.1:8766/api/evidence-status` show the same screenshot-evidence status without exposing a machine-specific file path. The functional static phase is marked `implemented`; a missing optional screenshot archive remains `확인 불가` and does not change the display, character, memory, authority, or action state.
+The local homepage and `http://127.0.0.1:8766/api/evidence-status` show the same screenshot-evidence status without exposing a machine-specific file path. The functional static phase is marked `implemented`; the current archive verifies as `완료 (3/3)`. Evidence status never changes the display, character, memory, authority, or action state.
+
+View the captured fixed routes: [first blocked attempt](docs/phase1_ui/blocked_first_attempt.png), [uncertain next step](docs/phase1_ui/uncertain_next_step.png), and [planned retry](docs/phase1_ui/planned_retry.png).
 
 To create the optional three-PNG archive locally with an installed Chrome, run:
 
@@ -48,7 +50,7 @@ python -m characterlab.capture
 python -m characterlab.evidence --require-complete
 ```
 
-The capture command starts an ephemeral loopback server, renders only the three fixed local scenarios in Chrome headless mode, refuses to overwrite existing captures, and performs no upload or character-state change.
+The capture command starts an ephemeral loopback server, renders only the three fixed local scenarios in Chrome headless mode, validates every staged PNG before promotion, refuses to overwrite existing captures, and performs no upload or character-state change.
 
 ## Scope
 

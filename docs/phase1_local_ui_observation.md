@@ -42,7 +42,7 @@ This confirms only the exercised local read-only surface. It does not prove broa
 
 ## Evidence limitation and completion status
 
-The controlled-browser tool displayed full-page screenshots during this observation, but its available interface did not provide a supported way to persist those image bytes in this repository. Therefore no PNG files are claimed here.
+During the **initial 2026-11-08 observation**, the controlled-browser tool displayed full-page screenshots but did not provide a supported repository-file save path. No persisted PNG was claimed at that time. This historical limitation is superseded by the later project-local Chrome capture described below.
 
 **Phase 1 functional delivery: complete.** The actual browser observation, read-only API check, and regression tests are the functional completion evidence. The three-PNG archive is optional portfolio material, not a gate on the functional phase.
 
@@ -54,16 +54,15 @@ The controlled-browser tool displayed full-page screenshots during this observat
 
 The capture output recorded `complete: true`, with all three files in `valid_files`; `python -m characterlab.evidence --require-complete` also exited `0`.
 
-## Resume procedure
+## Current audit and replacement procedure
 
-The next phase is an optional, evidence-only capture intake. It does not change a character, execute a suggestion, or claim that the display is a learned emotional system. Its absence does not reopen or block the functional phase.
+The evidence archive is complete. Audit it without changing a character, executing a suggestion, or claiming that the display is a learned emotional system:
 
-1. Start the local server with `python -m characterlab.webapp --port 8766`.
-2. Capture the three routes listed in `docs/phase1_ui/README.md` and save each PNG under `docs/phase1_ui/` with its required name.
-3. Run `Set-Location C:\AI\AffectGenesis-CharacterLab` first, then run `python -m characterlab.evidence --require-complete`.
-4. Only if that command reports `"complete": true` and exits `0`, update this document with the capture date and run the usual unittest and `git diff --check` verification.
+1. Run `Set-Location C:\AI\AffectGenesis-CharacterLab`.
+2. Run `python -m characterlab.evidence --require-complete` and confirm `"complete": true` with exit `0`.
+3. Run the normal unittest and `git diff --check` verification.
 
-The verifier is read-only: missing or invalid files remain `incomplete` rather than being synthesized or silently accepted.
+The verifier is read-only: missing or invalid files remain `incomplete` rather than being synthesized or silently accepted. Any replacement requires an explicit policy because the capture CLI refuses overwrites.
 
 ### Capture automation history
 
@@ -73,17 +72,25 @@ Restart condition: if a later capture is needed, retain the existing files unles
 
 The project now also provides `python -m characterlab.capture`, which renders the same three fixed local routes in an ephemeral local Chrome session and writes only verified PNGs. It refuses to overwrite existing capture files and can be followed by the existing evidence verification command.
 
-## Next phase: evidence-status surface
+## Evidence-status surface
 
 The optional evidence-intake phase now has two read-only local surfaces:
 
 - homepage panel: `http://127.0.0.1:8766/` → `보관 화면 증거`;
 - machine-readable status: `http://127.0.0.1:8766/api/evidence-status`.
 
-The panel and API deliberately separate the functional static display from optional persisted PNG evidence. At this observation, the panel reported `기능 단계: 구현됨` and `선택 보관 PNG 증거: 확인 불가 (0/3)`, then listed all three required filenames. It did not change a character, memory, authority, appearance, or action state, and the API excludes the machine-specific evidence-directory path.
+The panel and API deliberately separate the functional static display from optional persisted PNG evidence. During the initial pre-promotion observation, the panel reported `기능 단계: 구현됨` and `선택 보관 PNG 증거: 확인 불가 (0/3)`, then listed all three required filenames. After the automated capture completed, the same read-only status now reports `완료 (3/3)`. Neither state changes a character, memory, authority, appearance, or action state, and the API excludes the machine-specific evidence-directory path.
 
 This follows the narrow transparency principle that repeatable checks and their limitations should be documented separately from system claims; it is not a claim of NIST compliance or of actual emotion. See the [NIST AI RMF Measure guidance](https://airc.nist.gov/airmf-resources/airmf/5-sec-core/).
 
 ## Interview connection check
 
 The Ouroboros interview service returned a new session and a Korean question in this same task. Local A/B/C role review agreed this proves current-session reachability only; it is not a completed interview, an external expert review, or a guarantee of future-session availability.
+
+## 2026-11-08 KST Phase 0–2 closeout
+
+- **Phase 0 — record consistency:** historical pre-promotion `0/3` observations are now explicitly dated, while the current verified archive is stated as `3/3`.
+- **Phase 1 — bounded local UI check:** automated tests exercised the fixed routes, read-only API behavior, explicit `405` rejection of mutation methods, and the public evidence-status response. Mobile layout, keyboard navigation, and broader accessibility were not evaluated in this bounded portfolio phase.
+- **Phase 2 — portfolio presentation:** the root README now links the three fixed route renders and repeats their non-claim boundary. No color, layout, data model, API, character state, or learning behavior was changed.
+
+Verification for this closeout: `python -m unittest discover -s tests` reported `29` tests passing; `python -m characterlab.evidence --require-complete` reported `complete: true`; and `git diff --check` passed. The 3/3 PNG set remains route-render evidence only, not evidence of actual emotion, learning, personality, consciousness, human development, or safety.

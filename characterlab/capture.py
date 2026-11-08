@@ -63,7 +63,7 @@ def _is_png(path: Path) -> bool:
 
 
 def capture_local_ui(repository_root: Path, chrome: Path | None = None) -> dict[str, Any]:
-    """Render the three local pages in Chrome and atomically add their PNGs.
+    """Render and validate all three local PNGs before promoting them together.
 
     Existing capture PNGs are never overwritten. The running server and character
     state are not used: an ephemeral loopback server serves only the static demo.
