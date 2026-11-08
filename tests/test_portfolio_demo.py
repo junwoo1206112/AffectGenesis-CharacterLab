@@ -38,6 +38,23 @@ class PortfolioDemoTests(unittest.TestCase):
         self.assertIn("선택 보관 PNG 증거:</strong>", rendered)
         self.assertIn("기능 단계와 PNG 보관 증거는 별도 상태", rendered)
         self.assertIn("기능 단계:</strong> 구현됨", rendered)
+        self.assertIn("별도 합성 holdout 실험", rendered)
+        self.assertIn("학습을 실행하거나 캐릭터 상태를 바꾸지 않습니다", rendered)
+
+    def test_experiment_report_api_is_read_only_and_bounded(self):
+        server = ThreadingHTTPServer(("127.0.0.1", 0), DemoHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with urlopen(f"http://127.0.0.1:{server.server_port}/api/experiment-report", timeout=3) as response:
+                payload = json.load(response)
+            self.assertEqual(payload["safety"]["violation_count"], 0)
+            self.assertTrue(payload["checkpoint"]["restored_predictions_match"])
+            self.assertIn("not an LLM", payload["non_claim"])
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=3)
 
     def test_page_has_bounded_keyboard_and_small_screen_baseline(self):
         rendered = page("blocked_first_attempt")

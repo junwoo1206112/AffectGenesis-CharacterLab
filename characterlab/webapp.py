@@ -12,6 +12,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from .evidence import public_ui_evidence_status
+from .learning_experiment import evaluate as evaluate_synthetic_holdout
 from .model import build_comparison, canonical_boundaries, is_allowlisted_read_only_comparison, scenario_ids
 
 
@@ -146,9 +147,29 @@ def evidence_status_panel(status: dict[str, object]) -> str:
     )
 
 
+def experiment_status_panel(report: dict[str, object]) -> str:
+    """Render the isolated synthetic result without invoking any training."""
+    baseline = report["baseline"]
+    learned = report["learned"]
+    safety = report["safety"]
+    checkpoint = report["checkpoint"]
+    assert isinstance(baseline, dict) and isinstance(learned, dict)
+    assert isinstance(safety, dict) and isinstance(checkpoint, dict)
+    return (
+        '<section class="experiment-status"><h2>별도 합성 holdout 실험</h2>'
+        '<p class="note">이 결과는 읽기 전용입니다. 학습을 실행하거나 캐릭터 상태를 바꾸지 않습니다.</p>'
+        f'<p><strong>baseline / 모델 정확도:</strong> {baseline["holdout_accuracy"]:.3f} / {learned["holdout_accuracy"]:.3f}</p>'
+        f'<p><strong>차이 / 사전 기준:</strong> {report["improvement"]:.3f} / {report["minimum_improvement"]:.2f}</p>'
+        f'<p><strong>안전 위반 / checkpoint 복원:</strong> {safety["violation_count"]} / {checkpoint["restored_predictions_match"]}</p>'
+        '<p class="boundary">고정 합성 split 결과이며 LLM·RAG·에이전트·실제 감정·인간 발달·실사용 안전을 뜻하지 않습니다.</p>'
+        '<p class="note">JSON: <code>/api/experiment-report</code></p></section>'
+    )
+
+
 def page(scenario_id: str | None = None) -> str:
     report = build_comparison(scenario_id)
     evidence_status = public_ui_evidence_status(REPOSITORY_ROOT)
+    experiment_report = evaluate_synthetic_holdout()
     cards = "".join(
         "<section><h2>{}</h2><p>{}</p><p><strong>표시 제안 순서:</strong> {}</p>"
         "<p class=\"note\">{}</p><p class=\"boundary\">사전작성 표시 변형입니다. 실제 특성·진단·학습·개인화가 아닙니다.</p></section>".format(
@@ -179,7 +200,7 @@ def page(scenario_id: str | None = None) -> str:
 <nav class=\"scenarios\" aria-label=\"고정 합성 사례\">{scenario_links}</nav><h2>{escape(report["scenario_display_name"])}</h2>
 <p class=\"note\">{escape(report["shared_context"])}</p><p class=\"note\">{escape(report["comparison_summary"])}</p>{synthetic_input_panel(report)}<div class=\"profiles\">{cards}</div>
 <h2>공통 경계</h2><ul class=\"boundary\">{boundaries}</ul>
-<h2>한계</h2><ul>{limitations}</ul>{evidence_status_panel(evidence_status)}<p class=\"note\">JSON: <code>/api/comparison</code></p></main></html>"""
+<h2>한계</h2><ul>{limitations}</ul>{experiment_status_panel(experiment_report)}{evidence_status_panel(evidence_status)}<p class=\"note\">JSON: <code>/api/comparison</code></p></main></html>"""
 
 
 class DemoHandler(BaseHTTPRequestHandler):
@@ -203,6 +224,10 @@ class DemoHandler(BaseHTTPRequestHandler):
                 body = json.dumps(
                     public_ui_evidence_status(REPOSITORY_ROOT), ensure_ascii=False, sort_keys=True
                 ).encode("utf-8")
+                self.send_response(HTTPStatus.OK)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+            elif parsed.path == "/api/experiment-report":
+                body = json.dumps(evaluate_synthetic_holdout(), ensure_ascii=False, sort_keys=True).encode("utf-8")
                 self.send_response(HTTPStatus.OK)
                 self.send_header("Content-Type", "application/json; charset=utf-8")
             elif parsed.path == "/healthz":

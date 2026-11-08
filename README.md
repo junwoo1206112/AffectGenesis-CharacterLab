@@ -32,7 +32,7 @@ Invoke-WebRequest http://127.0.0.1:8766/healthz
 python -m characterlab.webapp --port 0
 ```
 
-두 번째 명령은 실제 포트 번호를 출력합니다. 출력된 `http://127.0.0.1:<포트>/` 주소를 브라우저에서 열면 됩니다. 사례별 JSON 비교 결과는 예를 들어 `http://127.0.0.1:8766/api/comparison?scenario=uncertain_next_step`에서 읽기 전용으로 볼 수 있습니다. 허용되지 않은 사례 ID와 변경 요청은 거부됩니다.
+두 번째 명령은 실제 포트 번호를 출력합니다. 출력된 `http://127.0.0.1:<포트>/` 주소를 브라우저에서 열면 됩니다. 사례별 JSON 비교 결과는 예를 들어 `http://127.0.0.1:8766/api/comparison?scenario=uncertain_next_step`에서 읽기 전용으로 볼 수 있습니다. 별도 합성 holdout 실험의 고정 결과도 `http://127.0.0.1:8766/api/experiment-report`에서 읽기 전용으로 확인할 수 있습니다. 이 endpoint는 학습을 실행하거나 캐릭터 상태를 저장·변경하지 않습니다. 허용되지 않은 사례 ID와 변경 요청은 거부됩니다.
 
 ## 검증하기
 

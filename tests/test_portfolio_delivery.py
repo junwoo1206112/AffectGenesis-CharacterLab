@@ -38,6 +38,8 @@ class PortfolioDeliveryTests(unittest.TestCase):
         self.assertIn("python -m characterlab.learning_experiment", readme)
         self.assertIn("정적 전시와 분리된", readme)
         self.assertIn("LLM·RAG·에이전트", readme)
+        self.assertIn("/api/experiment-report", readme)
+        self.assertIn("학습을 실행하거나 캐릭터 상태를 저장·변경하지 않습니다", readme)
         self.assertNotIn("ai-emotion-lab", readme.lower())
 
     def test_release_receipt_preserves_the_tag_boundary(self):
