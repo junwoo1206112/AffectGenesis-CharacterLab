@@ -29,8 +29,13 @@ python -m characterlab.webapp
 ```powershell
 python -m unittest discover -s tests
 python -m characterlab.smoke
+python -m characterlab.release_receipt --require-complete
 git diff --check
 ```
+
+## Published baseline receipt
+
+The published [v0.1.0 Release](https://github.com/junwoo1206112/AffectGenesis-CharacterLab/releases/tag/v0.1.0) stays unchanged. Its GitHub web-created tag is a lightweight tag that resolves to the fixed published commit; it is not represented as an annotated tag. `python -m characterlab.release_receipt --require-complete` checks that local Git binding and reports the tag form explicitly. The earlier annotated-tag-only Seed remains unmet rather than being retroactively passed; see [the receipt record](docs/v0_1_0_release_receipt.md).
 
 ## Continuous verification
 
