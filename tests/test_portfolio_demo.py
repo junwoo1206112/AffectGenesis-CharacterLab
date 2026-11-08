@@ -34,7 +34,7 @@ class PortfolioDemoTests(unittest.TestCase):
         self.assertNotIn("<form", rendered)
         self.assertNotIn("fetch(", rendered)
         self.assertIn("보관 화면 증거", rendered)
-        self.assertIn("선택 보관 PNG 증거:</strong> 확인 불가 (0/3)", rendered)
+        self.assertIn("선택 보관 PNG 증거:</strong>", rendered)
         self.assertIn("기능 단계와 PNG 보관 증거는 별도 상태", rendered)
         self.assertIn("기능 단계:</strong> 구현됨", rendered)
 
@@ -45,10 +45,17 @@ class PortfolioDemoTests(unittest.TestCase):
         try:
             with urlopen(f"http://127.0.0.1:{server.server_port}/api/evidence-status", timeout=3) as response:
                 payload = json.load(response)
-            self.assertFalse(payload["complete"])
+            self.assertEqual(
+                payload["complete"],
+                len(payload["valid_files"]) == len(EXPECTED_SCREENSHOTS),
+            )
             self.assertEqual(payload["functional_phase_status"], "implemented")
             self.assertFalse(payload["persisted_capture_required_for_functional_phase"])
             self.assertEqual(payload["expected_files"], list(EXPECTED_SCREENSHOTS))
+            self.assertEqual(
+                sorted(payload["valid_files"] + payload["missing_or_invalid_files"]),
+                sorted(EXPECTED_SCREENSHOTS),
+            )
             self.assertNotIn("evidence_directory", payload)
         finally:
             server.shutdown()

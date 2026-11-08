@@ -46,7 +46,13 @@ The controlled-browser tool displayed full-page screenshots during this observat
 
 **Phase 1 functional delivery: complete.** The actual browser observation, read-only API check, and regression tests are the functional completion evidence. The three-PNG archive is optional portfolio material, not a gate on the functional phase.
 
-**Optional persisted-screenshot archive: incomplete.** No PNG files are claimed until actual captures are available.
+**Optional persisted-screenshot archive: complete.** On 2026-11-08 KST, the local capture CLI produced and the verifier accepted these three actual Chrome-rendered PNGs:
+
+- `docs/phase1_ui/blocked_first_attempt.png`
+- `docs/phase1_ui/uncertain_next_step.png`
+- `docs/phase1_ui/planned_retry.png`
+
+The capture output recorded `complete: true`, with all three files in `valid_files`; `python -m characterlab.evidence --require-complete` also exited `0`.
 
 ## Resume procedure
 
@@ -59,11 +65,13 @@ The next phase is an optional, evidence-only capture intake. It does not change 
 
 The verifier is read-only: missing or invalid files remain `incomplete` rather than being synthesized or silently accepted.
 
-### Capture automation attempt and restart condition
+### Capture automation history
 
-On 2026-11-08 KST, a controlled browser captured the local `blocked_first_attempt` page as an actual JPEG byte stream. The available browser tool did not support saving that stream as a repository file. A follow-up attempt to paste it into the installed Windows capture editor reached the editor, but the editor rejected automation-window activation before any save action. No PNG was created, overwritten, or claimed.
+An earlier controlled-browser attempt captured the local `blocked_first_attempt` page as JPEG bytes but could not persist them through the Windows capture editor. That limitation is now superseded by the project-local Chrome headless capture CLI.
 
-Restart condition: a person may save the three actual local captures using the filenames in `docs/phase1_ui/README.md`, or a future controlled-browser session may expose a supported local-file save path. Then run `python -m characterlab.evidence --require-complete`; do not substitute generated or unrelated images.
+Restart condition: if a later capture is needed, retain the existing files unless an explicit replacement policy is chosen. The capture CLI refuses to overwrite them. Run `python -m characterlab.evidence --require-complete` after any deliberate replacement; do not substitute generated or unrelated images.
+
+The project now also provides `python -m characterlab.capture`, which renders the same three fixed local routes in an ephemeral local Chrome session and writes only verified PNGs. It refuses to overwrite existing capture files and can be followed by the existing evidence verification command.
 
 ## Next phase: evidence-status surface
 

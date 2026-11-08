@@ -19,4 +19,16 @@ Set-Location C:\AI\AffectGenesis-CharacterLab
 
 It prints a local JSON status and exits with `0` only when all three files have PNG signatures. Before captures exist, `--require-complete` intentionally exits with `1`; omit that option for a non-failing status check. It neither creates screenshots nor uploads or changes any character data.
 
+## Automated local capture
+
+If local Chrome is installed, the project can create the three captures without browser-window automation:
+
+```powershell
+Set-Location C:\AI\AffectGenesis-CharacterLab
+python -m characterlab.capture
+python -m characterlab.evidence --require-complete
+```
+
+The command uses an ephemeral `127.0.0.1` server and a temporary Chrome profile, captures only the fixed local scenario routes, validates PNG signatures, and refuses to overwrite any existing capture PNG. Set `CHARACTERLAB_CHROME_PATH` or pass `--chrome-path` only when Chrome is installed in a nonstandard local location.
+
 The screenshots are local UI evidence only. They do not demonstrate actual emotion, personality, learning, consciousness, human development, or safety.
