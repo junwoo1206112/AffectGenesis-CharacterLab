@@ -29,6 +29,10 @@ python -m unittest discover -s tests
 git diff --check
 ```
 
+## Continuous verification
+
+GitHub Actions runs the same full unittest suite and a committed-diff whitespace check on every push and pull request, using Python 3.12 on Ubuntu and Windows. The workflow does not publish, upload artifacts, or invoke the local Chrome capture command. It is a source-integrity check, not evidence of emotion, learning, or safety.
+
 ## Optional local UI evidence
 
 `docs/phase1_local_ui_observation.md` records the completed local observation and its evidence boundary. The repository now includes a verified three-file local archive. It documents only fixed UI rendering, not actual emotion, learning, personality, consciousness, human development, or safety.
