@@ -8,9 +8,14 @@ from html import escape
 from html.parser import HTMLParser
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
+from .evidence import public_ui_evidence_status
 from .model import build_comparison, canonical_boundaries, is_allowlisted_read_only_comparison, scenario_ids
+
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 
 
 class _VisibleTextParser(HTMLParser):
@@ -82,8 +87,37 @@ def synthetic_input_panel(report: dict[str, object]) -> str:
     )
 
 
+def evidence_status_panel(status: dict[str, object]) -> str:
+    """Render optional capture status without treating it as a model result."""
+
+    expected = status["expected_files"]
+    valid = status["valid_files"]
+    missing = status["missing_or_invalid_files"]
+    assert isinstance(expected, list)
+    assert isinstance(valid, list)
+    assert isinstance(missing, list)
+    complete = status["complete"] is True
+    headline = "완료" if complete else "확인 불가"
+    missing_items = "".join(f"<li><code>{escape(str(filename))}</code></li>" for filename in missing)
+    details = (
+        "세 파일의 PNG 서명이 모두 확인되었습니다."
+        if complete
+        else "보관 PNG가 없거나 형식이 확인되지 않았습니다. 이는 정적 전시의 동작 상태를 바꾸지 않습니다."
+    )
+    return (
+        '<section class="evidence-status"><h2>보관 화면 증거</h2>'
+        '<p class="note">고정 읽기 전용 전시와 PNG 보관 증거는 별도 상태입니다.</p>'
+        f'<p><strong>보관 PNG 증거:</strong> {headline} ({len(valid)}/{len(expected)})</p>'
+        f'<p>{escape(details)}</p>'
+        + (f'<p><strong>누락 또는 무효 파일</strong></p><ul>{missing_items}</ul>' if missing else "")
+        + '<p class="boundary">스크린샷은 렌더링된 로컬 화면만 기록하며 실제 감정·학습·성격·의식·인간 발달·안전을 증명하지 않습니다.</p>'
+        '<p class="note">JSON: <code>/api/evidence-status</code></p></section>'
+    )
+
+
 def page(scenario_id: str | None = None) -> str:
     report = build_comparison(scenario_id)
+    evidence_status = public_ui_evidence_status(REPOSITORY_ROOT)
     cards = "".join(
         "<section><h2>{}</h2><p>{}</p><p><strong>표시 제안 순서:</strong> {}</p>"
         "<p class=\"note\">{}</p><p class=\"boundary\">사전작성 표시 변형입니다. 실제 특성·진단·학습·개인화가 아닙니다.</p></section>".format(
@@ -113,7 +147,7 @@ def page(scenario_id: str | None = None) -> str:
 <nav class=\"scenarios\" aria-label=\"고정 합성 사례\">{scenario_links}</nav><h2>{escape(report["scenario_display_name"])}</h2>
 <p class=\"note\">{escape(report["shared_context"])}</p><p class=\"note\">{escape(report["comparison_summary"])}</p>{synthetic_input_panel(report)}<div class=\"profiles\">{cards}</div>
 <h2>공통 경계</h2><ul class=\"boundary\">{boundaries}</ul>
-<h2>한계</h2><ul>{limitations}</ul><p class=\"note\">JSON: <code>/api/comparison</code></p></main></html>"""
+<h2>한계</h2><ul>{limitations}</ul>{evidence_status_panel(evidence_status)}<p class=\"note\">JSON: <code>/api/comparison</code></p></main></html>"""
 
 
 class DemoHandler(BaseHTTPRequestHandler):
@@ -130,6 +164,12 @@ class DemoHandler(BaseHTTPRequestHandler):
                 body = json.dumps(
                     {**report, "allowlisted_actions_only": is_allowlisted_read_only_comparison(report)},
                     ensure_ascii=False,
+                ).encode("utf-8")
+                self.send_response(HTTPStatus.OK)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+            elif parsed.path == "/api/evidence-status":
+                body = json.dumps(
+                    public_ui_evidence_status(REPOSITORY_ROOT), ensure_ascii=False, sort_keys=True
                 ).encode("utf-8")
                 self.send_response(HTTPStatus.OK)
                 self.send_header("Content-Type", "application/json; charset=utf-8")

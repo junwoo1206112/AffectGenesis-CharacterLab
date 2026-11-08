@@ -50,6 +50,28 @@ def ui_evidence_status(repository_root: Path) -> dict[str, Any]:
     }
 
 
+def public_ui_evidence_status(repository_root: Path) -> dict[str, Any]:
+    """Return the status safe to display in the local web view.
+
+    The CLI can include a local absolute path to help a person resume work. The
+    web/API representation deliberately excludes that host-specific path.
+    """
+
+    status = ui_evidence_status(repository_root)
+    return {
+        key: status[key]
+        for key in (
+            "schema",
+            "expected_files",
+            "valid_files",
+            "missing_or_invalid_files",
+            "complete",
+            "scope",
+            "non_claim",
+        )
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Inspect optional local Phase 1 UI evidence.")
     parser.add_argument(

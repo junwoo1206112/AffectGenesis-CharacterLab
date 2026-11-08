@@ -38,6 +38,8 @@ Set-Location C:\AI\AffectGenesis-CharacterLab
 python -m characterlab.evidence --require-complete
 ```
 
+The local homepage and `http://127.0.0.1:8766/api/evidence-status` show the same screenshot-evidence status without exposing a machine-specific file path. A missing screenshot remains `확인 불가`; it does not change the static display, character, memory, authority, or action state.
+
 ## Scope
 
 이것은 합성 경험에 따른 **기능적 대처 제안의 표시 순서**를 보여 주는 결정론적 데모입니다. 실제 감정, 성격, 의식, 인간 발달, 학습, 임상적 안전성의 증거가 아닙니다. This is not evidence of actual emotion, personality, consciousness, learning, or human development. 모든 비교는 읽기 전용이며 캐릭터 상태·기억·권한·외형을 바꾸지 않고, 행동을 실행하지 않습니다. 허용 목록도 임상적 또는 실제 안전을 보증하지 않습니다.

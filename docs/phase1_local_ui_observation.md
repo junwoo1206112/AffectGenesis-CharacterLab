@@ -57,6 +57,17 @@ The next phase is an optional, evidence-only capture intake. It does not change 
 
 The verifier is read-only: missing or invalid files remain `incomplete` rather than being synthesized or silently accepted.
 
+## Next phase: evidence-status surface
+
+The optional evidence-intake phase now has two read-only local surfaces:
+
+- homepage panel: `http://127.0.0.1:8766/` → `보관 화면 증거`;
+- machine-readable status: `http://127.0.0.1:8766/api/evidence-status`.
+
+The panel and API deliberately separate the fixed static display from persisted PNG evidence. At this observation, the panel reported `보관 PNG 증거: 확인 불가 (0/3)` and listed all three required filenames. It did not change a character, memory, authority, appearance, or action state, and the API excludes the machine-specific evidence-directory path.
+
+This follows the narrow transparency principle that repeatable checks and their limitations should be documented separately from system claims; it is not a claim of NIST compliance or of actual emotion. See the [NIST AI RMF Measure guidance](https://airc.nist.gov/airmf-resources/airmf/5-sec-core/).
+
 ## Interview connection check
 
 The Ouroboros interview service returned a new session and a Korean question in this same task. Local A/B/C role review agreed this proves current-session reachability only; it is not a completed interview, an external expert review, or a guarantee of future-session availability.

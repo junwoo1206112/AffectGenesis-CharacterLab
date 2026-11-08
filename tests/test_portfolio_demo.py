@@ -5,6 +5,7 @@ from http.server import ThreadingHTTPServer
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
+from characterlab.evidence import EXPECTED_SCREENSHOTS
 from characterlab.model import ALLOWLISTED_COPING_SUGGESTIONS, build_comparison, is_allowlisted_read_only_comparison
 from characterlab.webapp import DemoHandler, page
 
@@ -32,6 +33,24 @@ class PortfolioDemoTests(unittest.TestCase):
         self.assertNotIn("<button", rendered)
         self.assertNotIn("<form", rendered)
         self.assertNotIn("fetch(", rendered)
+        self.assertIn("보관 화면 증거", rendered)
+        self.assertIn("보관 PNG 증거:</strong> 확인 불가 (0/3)", rendered)
+        self.assertIn("고정 읽기 전용 전시와 PNG 보관 증거는 별도 상태", rendered)
+
+    def test_evidence_status_api_is_read_only_and_redacts_local_path(self):
+        server = ThreadingHTTPServer(("127.0.0.1", 0), DemoHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with urlopen(f"http://127.0.0.1:{server.server_port}/api/evidence-status", timeout=3) as response:
+                payload = json.load(response)
+            self.assertFalse(payload["complete"])
+            self.assertEqual(payload["expected_files"], list(EXPECTED_SCREENSHOTS))
+            self.assertNotIn("evidence_directory", payload)
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=3)
 
     def test_model_remains_read_only(self):
         self.assertTrue(is_allowlisted_read_only_comparison(build_comparison()))
