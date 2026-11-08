@@ -69,6 +69,36 @@ def has_visible_canonical_boundaries(html: str) -> bool:
     return all(boundary in visible for boundary in canonical_boundaries())
 
 
+def health_status() -> dict[str, object]:
+    """Report whether this process can render the fixed static portfolio page.
+
+    The receipt intentionally stops at local page readiness. It is not a model,
+    learning, emotion, or safety assessment.
+    """
+
+    try:
+        rendered = page()
+    except Exception:
+        return {
+            "schema": "characterlab-health-1",
+            "ready": False,
+            "reason": "static_page_render_unavailable",
+            "scope": "local fixed-page readiness only",
+        }
+    boundaries_ready = has_visible_canonical_boundaries(rendered)
+    return {
+        "schema": "characterlab-health-1",
+        "ready": "<main id=\"main-content\"" in rendered and boundaries_ready,
+        "reason": "ready" if boundaries_ready else "canonical_boundary_unavailable",
+        "fixed_scenario_count": len(scenario_ids()),
+        "scope": "local fixed-page readiness only",
+        "non_claim": (
+            "This endpoint does not prove emotion, learning, personality, consciousness, "
+            "human development, or safety."
+        ),
+    }
+
+
 def synthetic_input_panel(report: dict[str, object]) -> str:
     """Render the fixed exhibition input and the same boundary contract."""
 
@@ -175,6 +205,11 @@ class DemoHandler(BaseHTTPRequestHandler):
                 ).encode("utf-8")
                 self.send_response(HTTPStatus.OK)
                 self.send_header("Content-Type", "application/json; charset=utf-8")
+            elif parsed.path == "/healthz":
+                status = health_status()
+                body = json.dumps(status, ensure_ascii=False, sort_keys=True).encode("utf-8")
+                self.send_response(HTTPStatus.OK if status["ready"] else HTTPStatus.SERVICE_UNAVAILABLE)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
             else:
                 raise ValueError("Unknown route")
         except ValueError:
@@ -210,7 +245,7 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=8766)
     args = parser.parse_args()
     server = ThreadingHTTPServer(("127.0.0.1", args.port), DemoHandler)
-    print(f"CharacterLab: http://127.0.0.1:{args.port}")
+    print(f"CharacterLab: http://127.0.0.1:{server.server_port}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

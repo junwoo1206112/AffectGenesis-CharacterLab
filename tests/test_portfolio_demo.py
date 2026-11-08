@@ -7,7 +7,7 @@ from urllib.request import Request, urlopen
 
 from characterlab.evidence import EXPECTED_SCREENSHOTS
 from characterlab.model import ALLOWLISTED_COPING_SUGGESTIONS, build_comparison, is_allowlisted_read_only_comparison
-from characterlab.webapp import DemoHandler, page
+from characterlab.webapp import DemoHandler, health_status, page
 
 
 class PortfolioDemoTests(unittest.TestCase):
@@ -68,6 +68,23 @@ class PortfolioDemoTests(unittest.TestCase):
                 sorted(EXPECTED_SCREENSHOTS),
             )
             self.assertNotIn("evidence_directory", payload)
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=3)
+
+    def test_health_endpoint_confirms_only_fixed_page_readiness(self):
+        server = ThreadingHTTPServer(("127.0.0.1", 0), DemoHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with urlopen(f"http://127.0.0.1:{server.server_port}/healthz", timeout=3) as response:
+                payload = json.load(response)
+            self.assertEqual(response.status, 200)
+            self.assertEqual(payload, health_status())
+            self.assertTrue(payload["ready"])
+            self.assertEqual(payload["fixed_scenario_count"], 3)
+            self.assertIn("does not prove emotion", payload["non_claim"])
         finally:
             server.shutdown()
             server.server_close()

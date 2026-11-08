@@ -27,6 +27,13 @@ def run_smoke() -> dict[str, object]:
     checked_scenarios: list[str] = []
     rejected_methods: list[str] = []
     try:
+        with urlopen(f"{base_url}/healthz", timeout=3) as response:
+            health = json.load(response)
+        if health["ready"] is not True:
+            raise RuntimeError("health endpoint is not ready")
+        if health["fixed_scenario_count"] != len(scenario_ids()):
+            raise RuntimeError("health scenario count mismatch")
+
         for scenario_id in scenario_ids():
             endpoint = f"{base_url}/api/comparison?scenario={scenario_id}"
             with urlopen(endpoint, timeout=3) as response:
@@ -61,6 +68,7 @@ def run_smoke() -> dict[str, object]:
     return {
         "schema": "characterlab-live-http-smoke-1",
         "checked_scenarios": checked_scenarios,
+        "health_ready": True,
         "get_responses_stable": True,
         "rejected_mutation_methods": rejected_methods,
         "scope": "ephemeral loopback HTTP contract only",

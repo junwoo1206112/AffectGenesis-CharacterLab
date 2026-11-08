@@ -22,6 +22,8 @@ python -m characterlab.webapp
 
 브라우저에서 `http://127.0.0.1:8766/`을 엽니다. 사례별 JSON 비교 결과는 예를 들어 `http://127.0.0.1:8766/api/comparison?scenario=uncertain_next_step`에서 볼 수 있습니다. 허용된 사례 ID 이외의 값은 거부됩니다.
 
+서버가 실제로 시작됐는지 먼저 확인해야 하면 `http://127.0.0.1:8766/healthz`를 엽니다. 이 endpoint는 고정 정적 페이지를 생성할 수 있는지만 나타내며, 실제 감정·학습·안전을 검증하지 않습니다. 포트 충돌을 피하려면 `python -m characterlab.webapp --port 0`을 실행하세요. 출력된 실제 포트 번호로 접속하면 됩니다.
+
 ## Verify
 
 ```powershell
