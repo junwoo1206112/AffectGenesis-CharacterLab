@@ -52,6 +52,10 @@ python -m characterlab.evidence --require-complete
 
 The capture command starts an ephemeral loopback server, renders only the three fixed local scenarios in Chrome headless mode, validates every staged PNG before promotion, refuses to overwrite existing captures, and performs no upload or character-state change.
 
+## Bounded accessibility baseline
+
+The static page provides a skip link, visible keyboard focus, the selected scenario's `aria-current="page"` marker, and a small-screen layout rule for 360px and narrower widths. This is a limited source-level baseline for the local static portfolio, not a full accessibility audit or a claim of device, assistive-technology, or WCAG conformance.
+
 ## Scope
 
 이것은 합성 경험에 따른 **기능적 대처 제안의 표시 순서**를 보여 주는 결정론적 데모입니다. 실제 감정, 성격, 의식, 인간 발달, 학습, 임상적 안전성의 증거가 아닙니다. This is not evidence of actual emotion, personality, consciousness, learning, or human development. 모든 비교는 읽기 전용이며 캐릭터 상태·기억·권한·외형을 바꾸지 않고, 행동을 실행하지 않습니다. 허용 목록도 임상적 또는 실제 안전을 보증하지 않습니다.

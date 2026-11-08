@@ -38,6 +38,17 @@ class PortfolioDemoTests(unittest.TestCase):
         self.assertIn("기능 단계와 PNG 보관 증거는 별도 상태", rendered)
         self.assertIn("기능 단계:</strong> 구현됨", rendered)
 
+    def test_page_has_bounded_keyboard_and_small_screen_baseline(self):
+        rendered = page("blocked_first_attempt")
+
+        self.assertIn('<meta name="viewport" content="width=device-width, initial-scale=1">', rendered)
+        self.assertIn('href="#main-content">본문으로 건너뛰기</a>', rendered)
+        self.assertIn('id="main-content" tabindex="-1"', rendered)
+        self.assertIn("a:focus-visible", rendered)
+        self.assertIn("@media (max-width:360px)", rendered)
+        self.assertIn('aria-current="page"', rendered)
+        self.assertEqual(rendered.count('aria-current="page"'), 1)
+
     def test_evidence_status_api_is_read_only_and_redacts_local_path(self):
         server = ThreadingHTTPServer(("127.0.0.1", 0), DemoHandler)
         thread = threading.Thread(target=server.serve_forever, daemon=True)

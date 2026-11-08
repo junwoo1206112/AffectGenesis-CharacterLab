@@ -132,17 +132,18 @@ def page(scenario_id: str | None = None) -> str:
     limitations = "".join(f"<li>{escape(item)}</li>" for item in report["limitations"])
     boundaries = "".join(f"<li>{escape(item)}</li>" for item in report["canonical_boundary_non_claims"])
     scenario_links = "".join(
-        '<a class="scenario{}" href="/?scenario={}">{}</a>'.format(
+        '<a class="scenario{}" href="/?scenario={}"{}>{}</a>'.format(
             " selected" if scenario_id == report["scenario_id"] else "",
             escape(scenario_id),
+            ' aria-current="page"' if scenario_id == report["scenario_id"] else "",
             escape(build_comparison(scenario_id)["scenario_display_name"]),
         )
         for scenario_id in scenario_ids()
     )
-    return f"""<!doctype html><html lang=\"ko\"><meta charset=\"utf-8\">
+    return f"""<!doctype html><html lang=\"ko\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
 <title>AffectGenesis CharacterLab</title>
-<style>body{{font-family:system-ui;max-width:980px;margin:3rem auto;padding:0 1rem;background:#101827;color:#e8eefc}}.profiles{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}}section{{border:1px solid #5f7aa5;border-radius:12px;padding:1rem;background:#18253a}}code{{color:#a9d3ff}}.note{{color:#b8c7df}}.boundary{{color:#ffe0a6;font-size:.9rem}}.scenarios{{display:flex;gap:.6rem;flex-wrap:wrap}}.scenario{{padding:.45rem .7rem;border:1px solid #5f7aa5;border-radius:999px;color:#e8eefc;text-decoration:none}}.scenario.selected{{background:#365a87}}</style>
-<main><p class=\"note\">{escape(report["comparison_label"])}</p><h1>AffectGenesis CharacterLab</h1>
+<style>*{{box-sizing:border-box}}body{{font-family:system-ui;max-width:980px;margin:3rem auto;padding:0 1rem;background:#101827;color:#e8eefc;overflow-wrap:anywhere}}.skip-link{{position:absolute;left:-9999px;top:auto}}.skip-link:focus{{left:1rem;top:1rem;z-index:1;background:#fff;color:#101827;padding:.6rem}}a:focus-visible{{outline:3px solid #fff;outline-offset:3px}}.profiles{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}}section{{border:1px solid #5f7aa5;border-radius:12px;padding:1rem;background:#18253a}}code{{color:#a9d3ff}}.note{{color:#b8c7df}}.boundary{{color:#ffe0a6;font-size:.9rem}}.scenarios{{display:flex;gap:.6rem;flex-wrap:wrap}}.scenario{{padding:.45rem .7rem;border:1px solid #5f7aa5;border-radius:999px;color:#e8eefc;text-decoration:none}}.scenario.selected{{background:#365a87;font-weight:700}}@media (max-width:360px){{body{{margin:1rem auto;padding:0 .75rem}}.profiles{{grid-template-columns:1fr}}section{{padding:.75rem}}}}</style>
+<a class=\"skip-link\" href=\"#main-content\">본문으로 건너뛰기</a><main id=\"main-content\" tabindex=\"-1\"><p class=\"note\">{escape(report["comparison_label"])}</p><h1>AffectGenesis CharacterLab</h1>
 <p>3개의 고정 합성 사례에서, 같은 합성 상황·같은 허용 목록을 받은 두 사전작성 표시 프로필의 문구와 제안 순서만 비교합니다. 자동 학습·저장·권한·외형·행동 실행은 없습니다.</p>
 <p class=\"boundary\">실제 감정·의식·성격·인간 발달의 증거가 아닙니다. 허용 목록은 임상적 또는 실제 안전의 보증이 아닙니다.</p>
 <nav class=\"scenarios\" aria-label=\"고정 합성 사례\">{scenario_links}</nav><h2>{escape(report["scenario_display_name"])}</h2>
