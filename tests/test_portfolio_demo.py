@@ -2,6 +2,7 @@ import json
 import threading
 import unittest
 from http.server import ThreadingHTTPServer
+from unittest.mock import patch
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -85,6 +86,40 @@ class PortfolioDemoTests(unittest.TestCase):
             self.assertTrue(payload["ready"])
             self.assertEqual(payload["fixed_scenario_count"], 3)
             self.assertIn("does not prove emotion", payload["non_claim"])
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=3)
+
+    def test_health_endpoint_fails_closed_without_exposing_render_details_then_recovers(self):
+        server = ThreadingHTTPServer(("127.0.0.1", 0), DemoHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        endpoint = f"http://127.0.0.1:{server.server_port}/healthz"
+        secret = r"C:\private\render-detail"
+        try:
+            with patch("characterlab.webapp.page", side_effect=RuntimeError(secret)):
+                with self.assertRaises(HTTPError) as raised:
+                    urlopen(endpoint, timeout=3)
+                error = raised.exception
+                self.assertEqual(error.code, 503)
+                body = error.read().decode("utf-8")
+                self.assertEqual(
+                    json.loads(body),
+                    {
+                        "ready": False,
+                        "reason": "static_page_render_unavailable",
+                        "schema": "characterlab-health-1",
+                        "scope": "local fixed-page readiness only",
+                    },
+                )
+                self.assertNotIn(secret, body)
+                self.assertNotIn(secret, str(error.headers))
+
+            with urlopen(endpoint, timeout=3) as response:
+                recovered = json.load(response)
+            self.assertEqual(response.status, 200)
+            self.assertTrue(recovered["ready"])
         finally:
             server.shutdown()
             server.server_close()
