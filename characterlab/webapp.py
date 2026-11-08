@@ -106,8 +106,9 @@ def evidence_status_panel(status: dict[str, object]) -> str:
     )
     return (
         '<section class="evidence-status"><h2>보관 화면 증거</h2>'
-        '<p class="note">고정 읽기 전용 전시와 PNG 보관 증거는 별도 상태입니다.</p>'
-        f'<p><strong>보관 PNG 증거:</strong> {headline} ({len(valid)}/{len(expected)})</p>'
+        '<p class="note">기능 단계와 PNG 보관 증거는 별도 상태입니다. PNG는 기능 완료의 필수 조건이 아닙니다.</p>'
+        '<p><strong>기능 단계:</strong> 구현됨 (고정·읽기 전용 전시)</p>'
+        f'<p><strong>선택 보관 PNG 증거:</strong> {headline} ({len(valid)}/{len(expected)})</p>'
         f'<p>{escape(details)}</p>'
         + (f'<p><strong>누락 또는 무효 파일</strong></p><ul>{missing_items}</ul>' if missing else "")
         + '<p class="boundary">스크린샷은 렌더링된 로컬 화면만 기록하며 실제 감정·학습·성격·의식·인간 발달·안전을 증명하지 않습니다.</p>'

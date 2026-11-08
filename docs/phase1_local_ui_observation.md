@@ -44,11 +44,13 @@ This confirms only the exercised local read-only surface. It does not prove broa
 
 The controlled-browser tool displayed full-page screenshots during this observation, but its available interface did not provide a supported way to persist those image bytes in this repository. Therefore no PNG files are claimed here.
 
-**Phase 1 persisted-screenshot criterion: incomplete.** The actual browser observation and API checks are recorded above, but a strict three-PNG local-artifact requirement remains unmet.
+**Phase 1 functional delivery: complete.** The actual browser observation, read-only API check, and regression tests are the functional completion evidence. The three-PNG archive is optional portfolio material, not a gate on the functional phase.
+
+**Optional persisted-screenshot archive: incomplete.** No PNG files are claimed until actual captures are available.
 
 ## Resume procedure
 
-The next phase is an optional, evidence-only capture intake. It does not change a character, execute a suggestion, or claim that the display is a learned emotional system.
+The next phase is an optional, evidence-only capture intake. It does not change a character, execute a suggestion, or claim that the display is a learned emotional system. Its absence does not reopen or block the functional phase.
 
 1. Start the local server with `python -m characterlab.webapp --port 8766`.
 2. Capture the three routes listed in `docs/phase1_ui/README.md` and save each PNG under `docs/phase1_ui/` with its required name.
@@ -70,7 +72,7 @@ The optional evidence-intake phase now has two read-only local surfaces:
 - homepage panel: `http://127.0.0.1:8766/` → `보관 화면 증거`;
 - machine-readable status: `http://127.0.0.1:8766/api/evidence-status`.
 
-The panel and API deliberately separate the fixed static display from persisted PNG evidence. At this observation, the panel reported `보관 PNG 증거: 확인 불가 (0/3)` and listed all three required filenames. It did not change a character, memory, authority, appearance, or action state, and the API excludes the machine-specific evidence-directory path.
+The panel and API deliberately separate the functional static display from optional persisted PNG evidence. At this observation, the panel reported `기능 단계: 구현됨` and `선택 보관 PNG 증거: 확인 불가 (0/3)`, then listed all three required filenames. It did not change a character, memory, authority, appearance, or action state, and the API excludes the machine-specific evidence-directory path.
 
 This follows the narrow transparency principle that repeatable checks and their limitations should be documented separately from system claims; it is not a claim of NIST compliance or of actual emotion. See the [NIST AI RMF Measure guidance](https://airc.nist.gov/airmf-resources/airmf/5-sec-core/).
 

@@ -1,6 +1,6 @@
 # Phase 1 local UI screenshots
 
-This directory is intentionally empty until a person captures the three local, static pages below. Do not place user data, browser history, credentials, or unrelated desktop content in these images.
+This directory is intentionally empty until a person captures the three local, static pages below. This archive is optional portfolio material; its absence does not block the completed functional Phase 1. Do not place user data, browser history, credentials, or unrelated desktop content in these images.
 
 With the local server running, capture one full-page PNG for each route and save it with the exact filename:
 

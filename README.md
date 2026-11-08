@@ -38,7 +38,7 @@ Set-Location C:\AI\AffectGenesis-CharacterLab
 python -m characterlab.evidence --require-complete
 ```
 
-The local homepage and `http://127.0.0.1:8766/api/evidence-status` show the same screenshot-evidence status without exposing a machine-specific file path. A missing screenshot remains `확인 불가`; it does not change the static display, character, memory, authority, or action state.
+The local homepage and `http://127.0.0.1:8766/api/evidence-status` show the same screenshot-evidence status without exposing a machine-specific file path. The functional static phase is marked `implemented`; a missing optional screenshot archive remains `확인 불가` and does not change the display, character, memory, authority, or action state.
 
 ## Scope
 

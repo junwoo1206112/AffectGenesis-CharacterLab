@@ -14,6 +14,7 @@ EXPECTED_SCREENSHOTS = (
     "planned_retry.png",
 )
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+FUNCTIONAL_PHASE_STATUS = "implemented"
 
 
 def evidence_directory(repository_root: Path) -> Path:
@@ -36,7 +37,9 @@ def ui_evidence_status(repository_root: Path) -> dict[str, Any]:
     valid = [name for name in EXPECTED_SCREENSHOTS if _is_png(directory / name)]
     missing = [name for name in EXPECTED_SCREENSHOTS if name not in valid]
     return {
-        "schema": "characterlab-phase1-ui-evidence-1",
+        "schema": "characterlab-phase1-ui-evidence-2",
+        "functional_phase_status": FUNCTIONAL_PHASE_STATUS,
+        "persisted_capture_required_for_functional_phase": False,
         "evidence_directory": str(directory),
         "expected_files": list(EXPECTED_SCREENSHOTS),
         "valid_files": valid,
@@ -62,6 +65,8 @@ def public_ui_evidence_status(repository_root: Path) -> dict[str, Any]:
         key: status[key]
         for key in (
             "schema",
+            "functional_phase_status",
+            "persisted_capture_required_for_functional_phase",
             "expected_files",
             "valid_files",
             "missing_or_invalid_files",

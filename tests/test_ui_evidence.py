@@ -18,6 +18,8 @@ class UiEvidenceTests(unittest.TestCase):
             status = ui_evidence_status(root)
 
             self.assertFalse(status["complete"])
+            self.assertEqual(status["functional_phase_status"], "implemented")
+            self.assertFalse(status["persisted_capture_required_for_functional_phase"])
             self.assertEqual(status["valid_files"], [])
             self.assertEqual(status["missing_or_invalid_files"], list(EXPECTED_SCREENSHOTS))
             self.assertFalse(evidence_directory(root).exists())
@@ -43,4 +45,6 @@ class UiEvidenceTests(unittest.TestCase):
 
             self.assertNotIn("evidence_directory", status)
             self.assertFalse(status["complete"])
+            self.assertEqual(status["functional_phase_status"], "implemented")
+            self.assertFalse(status["persisted_capture_required_for_functional_phase"])
             self.assertEqual(status["expected_files"], list(EXPECTED_SCREENSHOTS))
