@@ -25,10 +25,10 @@ If a deliberate replacement is approved and local Chrome is installed, the proje
 
 ```powershell
 Set-Location C:\AI\AffectGenesis-CharacterLab
-python -m characterlab.capture
+python -m characterlab.capture --replace-existing
 python -m characterlab.evidence --require-complete
 ```
 
-The command uses an ephemeral `127.0.0.1` server and a temporary Chrome profile, captures only the fixed local scenario routes, validates PNG signatures, and refuses to overwrite any existing capture PNG. It intentionally stops while the current archive exists; do not delete or replace evidence without an explicit replacement policy. Set `CHARACTERLAB_CHROME_PATH` or pass `--chrome-path` only when Chrome is installed in a nonstandard local location.
+The command uses an ephemeral `127.0.0.1` server and a temporary Chrome profile, captures only the fixed local scenario routes, validates PNG signatures, and replaces the archive only after all three new captures validate. Without `--replace-existing`, it intentionally stops while the current archive exists. Do not delete or replace evidence without an explicit replacement policy. Set `CHARACTERLAB_CHROME_PATH` or pass `--chrome-path` only when Chrome is installed in a nonstandard local location.
 
 The screenshots are local UI evidence only. They do not demonstrate actual emotion, personality, learning, consciousness, human development, or safety.

@@ -76,6 +76,23 @@ python -m characterlab.capture
 python -m characterlab.evidence --require-complete
 ```
 
+과거 화면 증거와 현재 렌더링이 다르다는 사실이 확인된 경우에만, 세 장을 먼저 임시 위치에 모두 렌더링·검증한 뒤 함께 교체할 수 있습니다. 부분 교체는 거부됩니다.
+
+```powershell
+python -m characterlab.capture --replace-existing
+python -m characterlab.evidence --require-complete
+```
+
+## 별도 합성 학습 실험
+
+정적 전시와 분리된 작은 표준 라이브러리 실험을 포함합니다. 명시된 합성 관측의 `행동 → 결과` 빈도만 학습해, 훈련에 없던 `new_context` holdout에서 결과 라벨을 예측합니다. 고정 다수결 baseline, 허용 행동 검증, checkpoint 저장·복원 뒤 동일 예측을 함께 확인합니다.
+
+```powershell
+python -m characterlab.learning_experiment --checkpoint .\local-checkpoint.json
+```
+
+현재 고정 합성 split에서만 학습 모델의 holdout 정확도(1.0)가 baseline(0.667)보다 0.333 높게 관찰됩니다. 이는 고정된 아주 작은 합성 사례의 결과일 뿐이며, LLM·RAG·에이전트·실제 감정·성격·인간 발달·실사용 안전·일반화 성능을 뜻하지 않습니다. 정적 웹 화면은 이 실험을 실행하거나 캐릭터 상태를 바꾸지 않습니다.
+
 ## 접근성 범위
 
 정적 화면에는 건너뛰기 링크, 보이는 키보드 포커스, 선택 사례의 `aria-current="page"`, 좁은 화면용 레이아웃 규칙이 있습니다. 이는 제한된 소스 수준 기준이며, 전체 접근성 감사나 모든 기기·보조기술·WCAG 적합성을 뜻하지 않습니다.

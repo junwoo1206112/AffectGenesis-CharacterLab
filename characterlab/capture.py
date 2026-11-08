@@ -62,18 +62,29 @@ def _is_png(path: Path) -> bool:
     return path.is_file() and path.read_bytes().startswith(PNG_SIGNATURE)
 
 
-def capture_local_ui(repository_root: Path, chrome: Path | None = None) -> dict[str, Any]:
+def capture_local_ui(
+    repository_root: Path, chrome: Path | None = None, *, replace_existing: bool = False
+) -> dict[str, Any]:
     """Render and validate all three local PNGs before promoting them together.
 
-    Existing capture PNGs are never overwritten. The running server and character
-    state are not used: an ephemeral loopback server serves only the static demo.
+    Existing capture PNGs are never overwritten unless ``replace_existing`` is
+    explicitly set. Replacement is deliberately all-or-nothing at the policy
+    level: every expected PNG must already exist, all new renders are validated
+    in a temporary directory first, and only then are the three files promoted.
+    The running server and character state are not used: an ephemeral loopback
+    server serves only the static demo.
     """
 
     repository_root = repository_root.resolve()
     output_directory = evidence_directory(repository_root)
     existing = [name for name in EXPECTED_SCREENSHOTS if (output_directory / name).exists()]
-    if existing:
+    if existing and not replace_existing:
         raise FileExistsError(f"refusing to overwrite existing capture(s): {', '.join(existing)}")
+    if replace_existing and set(existing) != set(EXPECTED_SCREENSHOTS):
+        raise FileExistsError(
+            "replacement requires all expected captures to exist; found: "
+            f"{', '.join(existing) or '(none)'}"
+        )
     chrome = chrome or find_chrome()
     if chrome is None:
         raise FileNotFoundError("local Chrome was not found; set CHARACTERLAB_CHROME_PATH")
@@ -121,8 +132,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Capture local CharacterLab static UI pages as PNG files.")
     parser.add_argument("--repository-root", type=Path, default=Path.cwd())
     parser.add_argument("--chrome-path", type=Path, help="Optional Chrome executable path.")
+    parser.add_argument(
+        "--replace-existing",
+        action="store_true",
+        help="Replace all three existing captures only after every new local render validates.",
+    )
     args = parser.parse_args()
-    result = capture_local_ui(args.repository_root, args.chrome_path)
+    result = capture_local_ui(
+        args.repository_root, args.chrome_path, replace_existing=args.replace_existing
+    )
     print(json.dumps(result, ensure_ascii=False, sort_keys=True))
     return 0
 

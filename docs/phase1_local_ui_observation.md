@@ -62,15 +62,15 @@ The evidence archive is complete. Audit it without changing a character, executi
 2. Run `python -m characterlab.evidence --require-complete` and confirm `"complete": true` with exit `0`.
 3. Run the normal unittest and `git diff --check` verification.
 
-The verifier is read-only: missing or invalid files remain `incomplete` rather than being synthesized or silently accepted. Any replacement requires an explicit policy because the capture CLI refuses overwrites.
+The verifier is read-only: missing or invalid files remain `incomplete` rather than being synthesized or silently accepted. Any replacement requires an explicit policy because the capture CLI refuses overwrites by default.
 
 ### Capture automation history
 
 An earlier controlled-browser attempt captured the local `blocked_first_attempt` page as JPEG bytes but could not persist them through the Windows capture editor. That limitation is now superseded by the project-local Chrome headless capture CLI.
 
-Restart condition: if a later capture is needed, retain the existing files unless an explicit replacement policy is chosen. The capture CLI refuses to overwrite them. Run `python -m characterlab.evidence --require-complete` after any deliberate replacement; do not substitute generated or unrelated images.
+Restart condition: if a later capture is needed, retain the existing files unless an explicit replacement policy is chosen. Run `python -m characterlab.evidence --require-complete` after any deliberate replacement; do not substitute generated or unrelated images.
 
-The project now also provides `python -m characterlab.capture`, which renders the same three fixed local routes in an ephemeral local Chrome session and writes only verified PNGs. It refuses to overwrite existing capture files and can be followed by the existing evidence verification command.
+The project now also provides `python -m characterlab.capture`, which renders the same three fixed local routes in an ephemeral local Chrome session and writes only verified PNGs. It refuses to overwrite existing capture files by default. The explicit `--replace-existing` option is permitted only when all three expected PNGs already exist; it renders and validates all three replacements in a temporary directory before promotion.
 
 ## Evidence-status surface
 
@@ -94,3 +94,9 @@ The Ouroboros interview service returned a new session and a Korean question in 
 - **Phase 2 — portfolio presentation:** the root README now links the three fixed route renders and repeats their non-claim boundary. No color, layout, data model, API, character state, or learning behavior was changed.
 
 Verification for this closeout: `python -m unittest discover -s tests` reported `29` tests passing; `python -m characterlab.evidence --require-complete` reported `complete: true`; and `git diff --check` passed. The 3/3 PNG set remains route-render evidence only, not evidence of actual emotion, learning, personality, consciousness, human development, or safety.
+
+## 2026-11-09 KST — historical screenshot replacement audit
+
+The three original persisted PNGs were structurally valid but visually stale: they showed the historical pre-promotion panel `확인 불가 (0/3)` even though the current verifier reported `완료 (3/3)`. Under an explicit corrective request, `python -m characterlab.capture --replace-existing` rendered all three fixed routes in a temporary local Chrome profile, validated all PNG signatures, and then promoted the three replacements together.
+
+Visual inspection of `blocked_first_attempt.png` now confirms the rendered panel says `선택 보관 PNG 증거: 완료 (3/3)`. The verifier again returned `complete: true`. This corrects the display/evidence mismatch only; it does not change the static demo into a learning system or establish any emotional, developmental, or safety claim.

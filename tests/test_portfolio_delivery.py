@@ -35,6 +35,9 @@ class PortfolioDeliveryTests(unittest.TestCase):
         ):
             self.assertIn(f"docs/phase1_ui/{filename}", readme)
         self.assertIn("실제 감정, 학습, 성격, 의식, 인간 발달", readme)
+        self.assertIn("python -m characterlab.learning_experiment", readme)
+        self.assertIn("정적 전시와 분리된", readme)
+        self.assertIn("LLM·RAG·에이전트", readme)
         self.assertNotIn("ai-emotion-lab", readme.lower())
 
     def test_release_receipt_preserves_the_tag_boundary(self):

@@ -32,6 +32,16 @@ class LocalCaptureTests(unittest.TestCase):
             with self.assertRaises(FileExistsError):
                 capture_local_ui(root, Path("C:/Chrome/chrome.exe"))
 
+    def test_replacement_requires_the_complete_existing_capture_set(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            directory = evidence_directory(root)
+            directory.mkdir(parents=True)
+            (directory / EXPECTED_SCREENSHOTS[0]).write_bytes(PNG_SIGNATURE)
+
+            with self.assertRaises(FileExistsError):
+                capture_local_ui(root, Path("C:/Chrome/chrome.exe"), replace_existing=True)
+
     def test_capture_promotes_only_verified_staged_pngs(self):
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
@@ -55,3 +65,26 @@ class LocalCaptureTests(unittest.TestCase):
                 sorted(path.name for path in evidence_directory(root).glob("*.png")),
                 sorted(EXPECTED_SCREENSHOTS),
             )
+
+    def test_capture_can_explicitly_replace_a_complete_verified_set(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            directory = evidence_directory(root)
+            directory.mkdir(parents=True)
+            for name in EXPECTED_SCREENSHOTS:
+                (directory / name).write_bytes(PNG_SIGNATURE + b"old")
+
+            def fake_run(command, **_kwargs):
+                output_argument = next(item for item in command if item.startswith("--screenshot="))
+                Path(output_argument.removeprefix("--screenshot=")).write_bytes(PNG_SIGNATURE + b"new")
+
+                class Result:
+                    returncode = 0
+                    stderr = ""
+
+                return Result()
+
+            with patch("characterlab.capture.subprocess.run", side_effect=fake_run):
+                capture_local_ui(root, Path("C:/Chrome/chrome.exe"), replace_existing=True)
+
+            self.assertTrue(all((directory / name).read_bytes().endswith(b"new") for name in EXPECTED_SCREENSHOTS))
