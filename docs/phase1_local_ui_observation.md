@@ -44,7 +44,18 @@ This confirms only the exercised local read-only surface. It does not prove broa
 
 The controlled-browser tool displayed full-page screenshots during this observation, but its available interface did not provide a supported way to persist those image bytes in this repository. Therefore no PNG files are claimed here.
 
-**Phase 1 persisted-screenshot criterion: incomplete.** The actual browser observation and API checks are recorded above, but a strict three-PNG local-artifact requirement remains unmet. A later manual capture of one PNG per route under `docs/phase1_ui/` can close only that evidence gap without changing code or data.
+**Phase 1 persisted-screenshot criterion: incomplete.** The actual browser observation and API checks are recorded above, but a strict three-PNG local-artifact requirement remains unmet.
+
+## Resume procedure
+
+The next phase is an optional, evidence-only capture intake. It does not change a character, execute a suggestion, or claim that the display is a learned emotional system.
+
+1. Start the local server with `python -m characterlab.webapp --port 8766`.
+2. Capture the three routes listed in `docs/phase1_ui/README.md` and save each PNG under `docs/phase1_ui/` with its required name.
+3. Run `python -m characterlab.evidence --require-complete` from the repository root.
+4. Only if that command reports `"complete": true` and exits `0`, update this document with the capture date and run the usual unittest and `git diff --check` verification.
+
+The verifier is read-only: missing or invalid files remain `incomplete` rather than being synthesized or silently accepted.
 
 ## Interview connection check
 
