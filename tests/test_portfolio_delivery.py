@@ -26,14 +26,15 @@ class PortfolioDeliveryTests(unittest.TestCase):
         self.assertIn("python -m characterlab.webapp", readme)
         self.assertIn("python -m characterlab.capture", readme)
         self.assertIn("python -m characterlab.release_receipt --require-complete", readme)
-        self.assertIn("current archive verifies as `완료 (3/3)`", readme)
+        self.assertIn("사이트에 연결할 수 없음", readme)
+        self.assertIn("http://127.0.0.1:8766/healthz", readme)
         for filename in (
             "blocked_first_attempt.png",
             "uncertain_next_step.png",
             "planned_retry.png",
         ):
             self.assertIn(f"docs/phase1_ui/{filename}", readme)
-        self.assertIn("not evidence of actual emotion", readme)
+        self.assertIn("실제 감정, 학습, 성격, 의식, 인간 발달", readme)
         self.assertNotIn("ai-emotion-lab", readme.lower())
 
     def test_release_receipt_preserves_the_tag_boundary(self):
@@ -55,8 +56,8 @@ class PortfolioDeliveryTests(unittest.TestCase):
         self.assertIn("Permission is hereby granted", license_text)
         self.assertIn("THE SOFTWARE IS PROVIDED \"AS IS\"", license_text)
         self.assertIn("[MIT License](LICENSE)", readme)
-        self.assertIn("third-party material", readme)
-        self.assertIn("does not establish or warrant actual emotion", readme)
+        self.assertIn("제3자 자료·데이터·상표", readme)
+        self.assertIn("실제 감정, 학습, 성격, 의식", readme)
 
     def test_ci_workflow_checks_both_supported_runners_without_publish_steps(self):
         workflow = (ROOT / ".github" / "workflows" / "verify.yml").read_text(encoding="utf-8")
