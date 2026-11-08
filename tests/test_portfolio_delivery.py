@@ -7,7 +7,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class PortfolioDeliveryTests(unittest.TestCase):
     def test_only_small_portfolio_material_is_present(self):
-        allowed_top_level = {".git", ".github", ".gitignore", "README.md", "characterlab", "docs", "tests"}
+        allowed_top_level = {
+            ".git",
+            ".github",
+            ".gitignore",
+            "LICENSE",
+            "README.md",
+            "characterlab",
+            "docs",
+            "tests",
+        }
         self.assertEqual({path.name for path in ROOT.iterdir()}, allowed_top_level)
         self.assertFalse((ROOT / "artifacts").exists())
         self.assertFalse((ROOT / "contracts").exists())
@@ -25,6 +34,18 @@ class PortfolioDeliveryTests(unittest.TestCase):
             self.assertIn(f"docs/phase1_ui/{filename}", readme)
         self.assertIn("not evidence of actual emotion", readme)
         self.assertNotIn("ai-emotion-lab", readme.lower())
+
+    def test_license_is_standard_mit_and_readme_bounds_its_scope(self):
+        license_text = (ROOT / "LICENSE").read_text(encoding="utf-8")
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+        self.assertIn("MIT License", license_text)
+        self.assertIn("Copyright (c) 2026 junwoo1206112", license_text)
+        self.assertIn("Permission is hereby granted", license_text)
+        self.assertIn("THE SOFTWARE IS PROVIDED \"AS IS\"", license_text)
+        self.assertIn("[MIT License](LICENSE)", readme)
+        self.assertIn("third-party material", readme)
+        self.assertIn("does not establish or warrant actual emotion", readme)
 
     def test_ci_workflow_checks_both_supported_runners_without_publish_steps(self):
         workflow = (ROOT / ".github" / "workflows" / "verify.yml").read_text(encoding="utf-8")
