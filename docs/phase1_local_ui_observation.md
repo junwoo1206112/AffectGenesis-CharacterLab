@@ -57,6 +57,12 @@ The next phase is an optional, evidence-only capture intake. It does not change 
 
 The verifier is read-only: missing or invalid files remain `incomplete` rather than being synthesized or silently accepted.
 
+### Capture automation attempt and restart condition
+
+On 2026-11-08 KST, a controlled browser captured the local `blocked_first_attempt` page as an actual JPEG byte stream. The available browser tool did not support saving that stream as a repository file. A follow-up attempt to paste it into the installed Windows capture editor reached the editor, but the editor rejected automation-window activation before any save action. No PNG was created, overwritten, or claimed.
+
+Restart condition: a person may save the three actual local captures using the filenames in `docs/phase1_ui/README.md`, or a future controlled-browser session may expose a supported local-file save path. Then run `python -m characterlab.evidence --require-complete`; do not substitute generated or unrelated images.
+
 ## Next phase: evidence-status surface
 
 The optional evidence-intake phase now has two read-only local surfaces:
