@@ -37,6 +37,7 @@ class PortfolioDeliveryTests(unittest.TestCase):
         self.assertIn("actions/checkout@v6", workflow)
         self.assertIn("actions/setup-python@v5", workflow)
         self.assertIn("python -m unittest discover -s tests -v", workflow)
+        self.assertIn("python -m characterlab.smoke", workflow)
         self.assertIn("git diff --check HEAD^ HEAD", workflow)
         self.assertNotIn("upload-artifact", workflow)
         self.assertNotIn("publish", workflow.lower())

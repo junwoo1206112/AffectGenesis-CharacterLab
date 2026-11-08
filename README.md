@@ -26,12 +26,13 @@ python -m characterlab.webapp
 
 ```powershell
 python -m unittest discover -s tests
+python -m characterlab.smoke
 git diff --check
 ```
 
 ## Continuous verification
 
-GitHub Actions runs the same full unittest suite and a committed-diff whitespace check on every push and pull request, using Python 3.12 on Ubuntu and Windows. The workflow does not publish, upload artifacts, or invoke the local Chrome capture command. It is a source-integrity check, not evidence of emotion, learning, or safety.
+GitHub Actions runs the same full unittest suite, an ephemeral loopback HTTP smoke check, and a committed-diff whitespace check on every push and pull request, using Python 3.12 on Ubuntu and Windows. The smoke check requests all three fixed scenarios, checks the fixed allowlist and repeated-GET stability, and confirms mutating methods return `405`; it does not save data or change the display. The workflow does not publish, upload artifacts, or invoke the local Chrome capture command. It is a source-integrity check, not evidence of emotion, learning, or safety.
 
 ## Optional local UI evidence
 
